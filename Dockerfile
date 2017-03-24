@@ -1,13 +1,11 @@
 #
 # Ubuntu Dockerfile
 #
-# https://github.com/dockerfile/ubuntu
+# https://github.com/ilia-luk/ubuntu
 #
 
 # Pull base image.
 FROM ubuntu:14.04
-
-RUN touch /.runonce
 
 # Install.
 RUN \
@@ -25,16 +23,16 @@ ADD root/.gitconfig /root/.gitconfig
 ADD root/.scripts /root/.scripts
 ADD root/.init_scripts/start.sh /root/.init_scripts/start.sh
 
-
-
 # Set environment variables.
 ENV HOME /root
 
 # Define working directory.
 WORKDIR /root
 
-# Own initialization scripts.
-RUN chmod +rwx ./.init_scripts/*.sh
+# First init mark.
+RUN touch /.runonce
 
-# Start tmux sessions.
-CMD sh .init_scripts/start.sh
+# Own initialization scripts.
+RUN chmod +rwx ~/.init_scripts/*.sh
+
+CMD sh ./.init_scripts/start.sh
