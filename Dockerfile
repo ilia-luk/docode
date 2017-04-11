@@ -4,24 +4,55 @@
 # https://github.com/ilia-luk/ubuntu
 #
 
-# Pull base image.
+# Pull base image
 FROM ubuntu:16.04
 
-# Install.
+# Set environment variables
+ENV HOME /root
+
+ENV TERM xterm-256color
+ENV DEBIAN_FRONTEND noninteractive
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+ENV ZSH_CUSTOM $HOME/.oh-my-zsh/custom
+ENV NODENV_VERSION 7.8.0
+
+# Install from apt-get
 RUN \
   sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list && \
-  apt-get update && \
-  apt-get install -y locales build-essential libevent-dev libncurses-dev && \
-  apt-get install -y software-properties-common && \
-  apt-get install -y byobu curl git htop man unzip vim wget && \
+  apt-get update && apt-get upgrade -y && \
+  apt-get install -y build-essential libevent-dev libncurses-dev && \
+  apt-get install -y software-properties-common locales && \
+  apt-get install -y byobu curl git zsh fontconfig htop man unzip vim wget && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* && \
   localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 
-# Set locale
-ENV LANG en_US.utf8
+# Install from Git
+RUN \
+  git clone http://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm && \
+  git clone https://github.com/nodenv/nodenv.git $HOME/.nodenv && \
+  git clone https://github.com/nodenv/node-build.git $HOME/.nodenv/plugins/node-build && \
+  git clone https://github.com/robbyrussell/oh-my-zsh.git $HOME/.oh-my-zsh && \
+  git clone git://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting && \
+  git clone git://github.com/zsh-users/zsh-autosuggestions $ZSH_CUSTOM/plugins/zsh-autosuggestions && \
+  git clone git://github.com/rupa/z.git $HOME/.scripts/z
 
-# Update Tmux.
+# Generate locale
+RUN locale-gen en_US.UTF-8
+
+# Add files
+ADD root/.tmux.conf $HOME/.tmux.conf
+ADD root/.bashrc $HOME/.bashrc
+ADD root/.zshrc $HOME/.zshrc
+ADD root/.gitconfig $HOME/.gitconfig
+ADD root/.git-completion.zsh $HOME/.zsh/functions/_git
+ADD root/.vimrc $HOME/.vimrc
+ADD root/.scripts $HOME/.scripts
+ADD root/.init_scripts/start.sh $HOME/.init_scripts/start.sh
+
+# Update Tmux
 RUN \
   wget https://github.com/tmux/tmux/releases/download/2.3/tmux-2.3.tar.gz && \
   tar -zxvf tmux-2.3.tar.gz && \
@@ -29,30 +60,36 @@ RUN \
   ./configure && make && \
   make install
 
-# We will be running as `root` user.
+# Install Powerline fonts
+RUN \
+  cd $HOME && \
+  wget https://github.com/powerline/powerline/raw/develop/font/PowerlineSymbols.otf && \
+  wget https://gist.github.com/qrush/1595572/raw/417a3fa36e35ca91d6d23ac961071094c26e5fad/Menlo-Powerline.otf && \
+  wget https://github.com/powerline/powerline/raw/develop/font/10-powerline-symbols.conf && \
+  mkdir .fonts && \
+  mkdir -p .config/fontconfig/conf.d && \
+  mv Menlo-Powerline.otf $HOME/.fonts/ && \
+  mv PowerlineSymbols.otf $HOME/.fonts/ && \
+  fc-cache -vf $HOME/.fonts/ && \
+  mv 10-powerline-symbols.conf $HOME/.config/fontconfig/conf.d/
+
+# We will be running as `root` user
 USER root
 
-# Add files.
-ADD root/.bashrc /root/.bashrc
-ADD root/.gitconfig /root/.gitconfig
-ADD root/.scripts /root/.scripts
-ADD root/.init_scripts/start.sh /root/.init_scripts/start.sh
+# Define working directory
+WORKDIR $HOME 
 
-# Set environment variables.
-ENV HOME /root
+# install nodenv
+RUN \
+  cd $HOME/.nodenv && \
+  src/configure && \
+  make -C src
 
-# Define working directory.
-WORKDIR /root
+# Own initialization scripts
+RUN chmod +rwx $HOME/.init_scripts/*.sh
 
-# Configure env variables for tmux
-# ENV PATH_01      /opt/ghc/8.0.1/
-# ENV PATH_02      /opt/cabal/1.24/
-# ENV PATH            $PATH_01/bin:$PATH_02/bin:$PATH
+# First init mark
+RUN touch $HOME/.init_scripts/.runonce
 
-# Own initialization scripts.
-RUN chmod +rwx ~/.init_scripts/*.sh
-
-# First init mark.
-RUN touch ./.init_scripts/.runonce
-
-CMD sh ./.init_scripts/start.sh
+# Start cmd
+CMD sh $HOME/.init_scripts/start.sh
