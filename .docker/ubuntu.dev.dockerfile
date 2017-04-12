@@ -43,14 +43,14 @@ RUN \
 RUN locale-gen en_US.UTF-8
 
 # Add files
-ADD root/.tmux.conf $HOME/.tmux.conf
-ADD root/.bashrc $HOME/.bashrc
-ADD root/.zshrc $HOME/.zshrc
-ADD root/.gitconfig $HOME/.gitconfig
-ADD root/.git-completion.zsh $HOME/.zsh/functions/_git
-ADD root/.vimrc $HOME/.vimrc
-ADD root/.scripts $HOME/.scripts
-ADD root/.init_scripts/start.sh $HOME/.init_scripts/start.sh
+ADD .docker/ubuntu_machine/.tmux.conf $HOME/.tmux.conf
+ADD .docker/ubuntu_machine/.bashrc $HOME/.bashrc
+ADD .docker/ubuntu_machine/.zshrc $HOME/.zshrc
+ADD .docker/ubuntu_machine/.gitconfig $HOME/.gitconfig
+ADD .docker/ubuntu_machine/.scripts/git-completion.zsh $HOME/.zsh/functions/_git
+ADD .docker/ubuntu_machine/.vimrc $HOME/.vimrc
+ADD .docker/ubuntu_machine/.scripts $HOME/.scripts
+ADD .docker/ubuntu_machine/.init_scripts/start.sh $HOME/.init_scripts/start.sh
 
 # Update Tmux
 RUN \

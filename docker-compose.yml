@@ -1,0 +1,46 @@
+version: "2"
+services:
+
+  dev:
+    container_name: dev-ubuntu
+    image: dev-ubuntu-image
+    stdin_open: true
+    tty: true
+    build:
+      context: .
+      dockerfile: .docker/ubuntu.dev.dockerfile
+    networks:
+      - hive
+    ports:
+      - "3050:3050"
+    volumes:
+      - ./services/web:/root/devproject/web
+      - /root/devproject/web/node_modules
+      - ./services/api:/root/devproject/api
+      - /root/devproject/api/node_modules
+    working_dir: /root/devproject
+
+  mongo:
+    container_name: dev-mongo
+    image: dev-mongo-image
+    build:
+      context: .
+      dockerfile: ./.docker/mongo.dev.dockerfile
+    env_file:
+      - ./.docker/env/mongo.dev.env
+    volumes:
+      - database_data:/var/lib/mongo
+    networks:
+      - hive
+    ports:
+      - "27017"
+
+
+volumes:
+    database_data:
+        driver: local
+
+networks:
+  hive:
+    external:
+      name: domusnetwork
