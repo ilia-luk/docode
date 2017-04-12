@@ -12,13 +12,79 @@ services:
     networks:
       - hive
     ports:
-      - "3050:3050"
+      - "9000:9000"
     volumes:
       - ./services/web:/root/devproject/web
       - /root/devproject/web/node_modules
+      - ./services/cms:/root/devproject/cms
+      - /root/devproject/cms/node_modules
       - ./services/api:/root/devproject/api
       - /root/devproject/api/node_modules
     working_dir: /root/devproject
+  
+  web:
+    container_name: dev-web
+    image: dev-web-image
+    command: npm start
+    build:
+      context: .
+      dockerfile: .docker/node.dev.dockerfile
+      args:
+        - name=web
+    env_file:
+      - ./.docker/env/node.dev.env
+    networks:
+      - hive
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./services/web:/home/server
+      - /home/server/node_modules
+    working_dir: /home/server
+    depends_on:
+      - api
+    
+  cms:
+    container_name: dev-cms
+    image: dev-cms-image
+    command: npm start
+    build:
+      context: .
+      dockerfile: .docker/node.dev.dockerfile
+      args:
+        - name=cms
+    env_file:
+      - ./.docker/env/node.dev.env
+    networks:
+      - hive
+    ports:
+      - "7000:7000"
+    volumes:
+      - ./services/cms:/home/server
+      - /home/server/node_modules
+    working_dir: /home/server
+    depends_on:
+      - api
+
+  api:
+    container_name: dev-api
+    image: dev-api-image
+    command: npm start
+    build:
+      context: .
+      dockerfile: .docker/node.dev.dockerfile
+      args:
+        - name=api
+    env_file:
+      - ./.docker/env/node.dev.env
+    networks:
+      - hive
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./services/api:/home/server
+      - /home/server/node_modules
+    working_dir: /home/server
 
   mongo:
     container_name: dev-mongo

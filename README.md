@@ -45,7 +45,7 @@ This repository contains **Dockerfile** of [Ubuntu](http://www.ubuntu.com/) for 
 - [tmux-resurrect](http://)
 
 
-### Mongo packages
+### Mongo contains
 
 - [netcat-traditional](http://)
 - [netcat-openbsd](http://)
@@ -70,3 +70,18 @@ This repository contains **Dockerfile** of [Ubuntu](http://www.ubuntu.com/) for 
 - Run `node server.js` to test mongodb connection
 - Run `prefix(Ctrl-b) d` to deattach from session
 - Run `docker-compose down` when finished
+
+
+## TODO
+
+- add .vimrc settings
+- move to neovim
+- check how to use Terminator in docker container
+- add nginx container
+- add ssh to ubuntu container
+- automate connect to node containers and mongo container through ssh in a tmux window
+- enable ssl
+- add vim/neovim plugins
+- add authorized ssh list for tmux pair programming
+- production ready
+
