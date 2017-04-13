@@ -1,0 +1,18 @@
+{
+  "presets": [
+    "save",
+    ["latest", {
+      "es2015": {
+        "loose": true,
+        "modules": false
+      }
+    }]
+  ],
+  "plugins": [
+    "syntax-async-functions",
+    "transform-class-properties",
+    "transform-regenerator",
+    "ramda",
+    "lodash"
+  ]
+}

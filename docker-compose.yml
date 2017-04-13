@@ -13,6 +13,7 @@ services:
       - hive
     ports:
       - "9000:9000"
+      - "49154:22"
     volumes:
       - ./services/web:/root/devproject/web
       - /root/devproject/web/node_modules
@@ -21,6 +22,9 @@ services:
       - ./services/api:/root/devproject/api
       - /root/devproject/api/node_modules
     working_dir: /root/devproject
+    depends_on:
+      - web
+      - cms
   
   web:
     container_name: dev-web
@@ -32,16 +36,16 @@ services:
       args:
         - name=web
     env_file:
-      - ./.docker/env/node.dev.env
+      - ./.docker/node_machine/node.dev.env
     networks:
       - hive
     ports:
       - "3000:3000"
     volumes:
-      - ./services/web:/home/server
-      - /home/server/node_modules
-    working_dir: /home/server
-    depends_on:
+      - ./services/web:/root/service
+      - /root/service/node_modules
+    working_dir: /root/service
+    depends_on:      
       - api
     
   cms:
@@ -54,15 +58,15 @@ services:
       args:
         - name=cms
     env_file:
-      - ./.docker/env/node.dev.env
+      - ./.docker/node_machine/node.dev.env
     networks:
       - hive
     ports:
       - "7000:7000"
     volumes:
-      - ./services/cms:/home/server
-      - /home/server/node_modules
-    working_dir: /home/server
+      - ./services/cms:/root/service
+      - /root/service/node_modules
+    working_dir: /root/service
     depends_on:
       - api
 
@@ -76,15 +80,18 @@ services:
       args:
         - name=api
     env_file:
-      - ./.docker/env/node.dev.env
+      - ./.docker/node_machine/node.dev.env
     networks:
       - hive
     ports:
       - "8000:8000"
     volumes:
-      - ./services/api:/home/server
-      - /home/server/node_modules
-    working_dir: /home/server
+      - ./services/api:/root/service
+      - /root/service/node_modules
+    working_dir: /root/service
+    depends_on:
+      - mongo
+
 
   mongo:
     container_name: dev-mongo
@@ -93,7 +100,7 @@ services:
       context: .
       dockerfile: ./.docker/mongo.dev.dockerfile
     env_file:
-      - ./.docker/env/mongo.dev.env
+      - ./.docker/mongo_machine/mongo.dev.env
     volumes:
       - database_data:/var/lib/mongo
     networks:

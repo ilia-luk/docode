@@ -1,7 +1,7 @@
 ## Docker compose development environment
 
-
 This repository contains **Dockerfile** of [Ubuntu](http://www.ubuntu.com/) for [Docker](https://www.docker.com/)'s.
+
 
 ## Base Docker Images
 
@@ -11,6 +11,7 @@ This repository contains **Dockerfile** of [Ubuntu](http://www.ubuntu.com/) for 
 
 
 ### Ubuntu contains
+
 
 #### Shell packages
 
@@ -22,6 +23,7 @@ This repository contains **Dockerfile** of [Ubuntu](http://www.ubuntu.com/) for 
 - [htop](http://)
 - [man](http://)
 - [unzip](http://)
+- [openssh-server](http://)
 - [vim](http://)
 - [wget](http://)
 - [byobu](http://)
@@ -33,7 +35,8 @@ This repository contains **Dockerfile** of [Ubuntu](http://www.ubuntu.com/) for 
 
 #### Zsh plugins
 
-* [ubuntu](http://), [docker](http://), [docker-compose](http://), [vundle](http://), [vi-mode](http://), [tmux](http://), [npm](http://), [node](http://), [web-search](http://), [themes](http://), [colored-man-pages](http://), [colorize](http://), [colorize](http://), [zsh-syntax-highlighting](http://), [zsh-autosuggestions](http://), [aws](http://),        
+* [ubuntu](http://), [docker](http://), [docker-compose](http://), [vundle](http://), [vi-mode](http://), [tmux](http://), [npm](http://), [node](http://), [web-search](http://), [themes](http://), [colored-man-pages](http://), [colorize](http://), [colorize](http://), [zsh-syntax-highlighting](http://), [zsh-autosuggestions](http://), [aws](http://),    
+
 #### Fonts for shell
 
 - [Menlo-Powerline.otf](http://)
@@ -53,21 +56,18 @@ This repository contains **Dockerfile** of [Ubuntu](http://www.ubuntu.com/) for 
 
 ## Installation
 
-1. Install [Docker](https://www.docker.com/).
-
-2. Run `docker-compose build`
-
-3. Run `docker-compose up -d`
-
-4. Run `docker network create domusnetwork` to create external network
+0. Install [Docker](https://www.docker.com/).
+1. Run `npm run shrink` in each service (api, cms, web)
+2. Run `docker network create domusnetwork` to create external network
+3. Run `docker-compose build`
+4. Run `docker-compose up -d`
 
 
 ## Usage
 
-- Run `docker attach dev-ubuntu` to attach into the development session
-- Run `cd web && nodenv install 7.8.0`
-- Run `npm install`
-- Run `node server.js` to test mongodb connection
+- Run `ssh root@localhost -p 49154` with password `overlord` to attach into the development session (might work with a few sec delay after the 'up' process)
+- Run `tmux` to attach into pre-configured tmux session if you sshd into container
+- Alternatively run `docker attach dev-ubuntu` to attach into the development tmux session
 - Run `prefix(Ctrl-b) d` to deattach from session
 - Run `docker-compose down` when finished
 
@@ -75,13 +75,13 @@ This repository contains **Dockerfile** of [Ubuntu](http://www.ubuntu.com/) for 
 ## TODO
 
 - add .vimrc settings
-- move to neovim
+- upgrade to vim 8
 - check how to use Terminator in docker container
 - add nginx container
-- add ssh to ubuntu container
-- automate connect to node containers and mongo container through ssh in a tmux window
+- add ssh key to ubuntu container
+- add sshd to all node containers
+- automate connect to node containers and mongo container through ssh in a tmux session
 - enable ssl
-- add vim/neovim plugins
+- add vim plugins
 - add authorized ssh list for tmux pair programming
-- production ready
-
+- get to production ready

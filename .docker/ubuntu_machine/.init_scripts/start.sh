@@ -13,13 +13,16 @@ unset RBENV_DIR
 
 cd $HOME
 
-if [ -e $HOME/.init_scripts/.runonce ]
-then
-  rm -f $HOME/.init_scripts/.runonce
+# log and attach to session
+printf "${GREEN} Tmux running version: ${BLUE}${TMUX_VERSION}${NC}\n"
+printf "${GREEN} Attaching to session: ${BLUE}${SESSION_01}${NC}\n"
+#if [ -z "$TMUX" ]; then
+  tmux attach -t $SESSION_01
+#else
   BLUE='\033[0;34m'
   GREEN='\033[0;32m'
   NC='\033[0m'
-  
+
   printf "${GREEN} Creating working dir: ${BLUE}...${NC}\n"
   mkdir $HOME/devproject
 
@@ -44,22 +47,20 @@ then
   tmux new-window -n console -t $SESSION_01:2
   # Setup a Server window
   tmux new-window -n server -t $SESSION_01:3
-  # Setup a MongoDB window
-  tmux new-window -n mongo -t $SESSION_01:4
-  # Setup a htop window
-  tmux new-window -n htop -t $SESSION_01:5
+  # Setup a logs window
+  tmux new-window -n logs -t $SESSION_01:4
+  # Setup a htop
+  tmux new-window -n processes -t $SESSION_01:5
   tmux send-keys -t $SESSION_01:5 'htop' C-m
+  # Setup a sshd
+  tmux split-window -v -t $SESSION_01:5
+  tmux select-layout -t $SESSION_01:5 main-horizontal
+  tmux send-keys -t $SESSION_01:5 '/usr/sbin/sshd -D' C-m
   # Select main window and pane.
   tmux select-window -t $SESSION_01:1
   tmux select-pane -t $SESSION_01:1.1
-fi
-
-# log and attach to session
-printf "${GREEN} Tmux running version: ${BLUE}${TMUX_VERSION}${NC}\n"
-printf "${GREEN} Attaching to session: ${BLUE}${SESSION_01}${NC}\n"
-if [ -z "$TMUX" ]; then
   tmux attach -t $SESSION_01
-fi
+#fi
 
 exit $?
 

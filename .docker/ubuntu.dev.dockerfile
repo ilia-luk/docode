@@ -24,7 +24,7 @@ RUN \
   apt-get update && apt-get upgrade -y && \
   apt-get install -y build-essential libevent-dev libncurses-dev && \
   apt-get install -y software-properties-common locales && \
-  apt-get install -y byobu curl git zsh fontconfig htop man unzip vim wget && \
+  apt-get install -y byobu curl git zsh fontconfig htop man unzip vim wget openssh-server && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/* && \
   localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
@@ -38,6 +38,19 @@ RUN \
   git clone git://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting && \
   git clone git://github.com/zsh-users/zsh-autosuggestions $ZSH_CUSTOM/plugins/zsh-autosuggestions && \
   git clone git://github.com/rupa/z.git $HOME/.scripts/z
+
+# Enable SSHd
+RUN mkdir /var/run/sshd
+RUN echo 'root:overlord' | chpasswd
+RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+
+# SSH login fix. Otherwise user is kicked off after login
+RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+ENV NOTVISIBLE "in users profile"
+RUN echo "export VISIBLE=now" >> /etc/profile
+EXPOSE 22
+
+RUN /usr/sbin/sshd
 
 # Generate locale
 RUN locale-gen en_US.UTF-8

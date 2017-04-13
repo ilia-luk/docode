@@ -81,8 +81,13 @@ function printAllColors {
     │ printf "\x1b[38;5;${i}m${i} "
   done
 }
-alias pcolors=printAllColors
+alias pcolors=printAllColors=
 
-# nodenv
+# Initialize nodenv and remove first initialization mark
 eval "$(nodenv init -)"
-
+if [ -e $HOME/.init_scripts/.runonce ]
+then
+  # change to use "NODENV_VERSION" global ENV variable
+  # eval "$(nodenv install 7.8.0 -)"
+  rm -f $HOME/.init_scripts/.runonce
+fi
