@@ -9,7 +9,7 @@ const BASE_CONFIG = {
   ISPROD,
   ISTEST,
   SERVER_NAME: 'Node web',
-  SERVER_PORT: 8080,
+  SERVER_PORT: 3000,
   MONGO_USER: 'modify',
   MONGO_PASSWORD: 'dontgiveintothehate',
   MONGO_PORT: 27017,

@@ -58,7 +58,7 @@ This repository contains **Dockerfile** of [Ubuntu](http://www.ubuntu.com/) for 
 
 0. Install [Docker](https://www.docker.com/).
 1. Run `npm run shrink` in each service (api, cms, web)
-2. Run `docker network create domusnetwork` to create external network
+2. Run `docker network create -d bridge domusnetwork` to create external docker network
 3. Run `docker-compose build`
 4. Run `docker-compose up -d`
 
@@ -70,6 +70,21 @@ This repository contains **Dockerfile** of [Ubuntu](http://www.ubuntu.com/) for 
 - Alternatively run `docker attach dev-ubuntu` to attach into the development tmux session
 - Run `prefix(Ctrl-b) d` to deattach from session
 - Run `docker-compose down` when finished
+
+
+## Debugging
+
+You should use [docker logs](https://docs.docker.com/engine/reference/commandline/logs/) to see the output of your daemonized containers.
+
+```
+$ docker logs nginx
+```
+
+You can also checkout the docker-gen generated "default.conf" file using [docker exec](https://docs.docker.com/engine/reference/commandline/exec/)
+
+```
+$ docker exec -it nginx-gen cat /etc/nginx/conf.d/default.conf
+```
 
 
 ## TODO
