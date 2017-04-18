@@ -72,7 +72,7 @@ This repository contains **Dockerfile** of [Ubuntu](http://www.ubuntu.com/) for 
 - Run `docker-compose down` when finished
 
 
-## Debugging
+## Production https debugging
 
 You should use [docker logs](https://docs.docker.com/engine/reference/commandline/logs/) to see the output of your daemonized containers.
 
@@ -100,3 +100,8 @@ $ docker exec -it nginx-gen cat /etc/nginx/conf.d/default.conf
 - add vim plugins
 - add authorized ssh list for tmux pair programming
 - get to production ready
+
+
+## Licence
+
+MIT

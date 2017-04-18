@@ -1,9 +1,9 @@
-version: "2"
-services:
+docode:
 
 
   nginx:
     restart: always
+    deployment_strategy: high_availability
     container_name: nginx
     image: nginx
     ports:
@@ -16,12 +16,11 @@ services:
       - "./.docker/nginx_machine/certs:/etc/nginx/certs:ro"
     labels:
       - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy=true"
-    networks:
-      - hive
 
 
   nginx-gen:
     restart: always
+    deployment_strategy: high_availability
     container_name: nginx-gen
     image: jwilder/docker-gen
     volumes_from:
@@ -36,6 +35,7 @@ services:
 
   nginx-letsencrypt:
     restart: always
+    deployment_strategy: high_availability
     container_name: letsencrypt
     image: jrcs/letsencrypt-nginx-proxy-companion
     volumes:
@@ -50,27 +50,23 @@ services:
       - nginx
       - nginx-gen
 
-
   web:
     restart: always
+    deployment_strategy: high_availability
     container_name: web
     image: web-image
     command: npm build
-    build:
-      context: .
-      dockerfile: .docker/node.dev.dockerfile
-      args:
-        - name=web
-    env_file:
-      - ./.docker/node_machine/node.dev.env
     environment:
-      - VIRTUAL_HOST=web.domusnetwork.io
+      - VIRTUAL_HOST=domusnetwork.io
       - VIRTUAL_NETWORK=domusnetwork
       - VIRTUAL_PORT=80
-      - LETSENCRYPT_HOST=web.domusnetwork.io
+      - LETSENCRYPT_HOST=domusnetwork.io
       - LETSENCRYPT_EMAIL=admin@domusnetwork.io
-    networks:
-      - hive
+      - NODE_ENV=production
+      - MONGO_LAB_PASSWORD=$PASSWORD
+    tags:
+      - production
+      - web
     ports:
       - "80:8080"
     volumes:
@@ -83,28 +79,25 @@ services:
 
   app:
     restart: always
+    deployment_strategy: high_availability
     container_name: app
     image: app-image
     command: npm build
-    build:
-      context: .
-      dockerfile: .docker/node.dev.dockerfile
-      args:
-        - name=app
-    env_file:
-      - ./.docker/node_machine/node.dev.env
     environment:
       - VIRTUAL_HOST=app.domusnetwork.io
       - VIRTUAL_NETWORK=domusnetwork
       - VIRTUAL_PORT=3000
       - LETSENCRYPT_HOST=app.domusnetwork.io
       - LETSENCRYPT_EMAIL=admin@domusnetwork.io
-    networks:
-      - hive
+      - NODE_ENV=production
+      - MONGO_LAB_PASSWORD=$PASSWORD
+    tags:
+      - production
+      - app
     ports:
       - "3000:3000"
     volumes:
-      - ./services/app:/root/service
+      - ./services/web:/root/service
       - /root/service/node_modules
     working_dir: /root/service
     depends_on:      
@@ -113,24 +106,21 @@ services:
 
   cms:
     restart: always
+    deployment_strategy: high_availability
     container_name: cms
     image: cms-image
     command: npm build
-    build:
-      context: .
-      dockerfile: .docker/node.dev.dockerfile
-      args:
-        - name=cms
-    env_file:
-      - ./.docker/node_machine/node.dev.env
     environment:
       - VIRTUAL_HOST=cms.domusnetwork.io
       - VIRTUAL_NETWORK=domusnetwork
       - VIRTUAL_PORT=7000
       - LETSENCRYPT_HOST=cms.domusnetwork.io
       - LETSENCRYPT_EMAIL=admin@domusnetwork.io
-    networks:
-      - hive
+      - NODE_ENV=production
+      - MONGO_LAB_PASSWORD=$PASSWORD
+    tags:
+      - production
+      - cms
     ports:
       - "7000:7000"
     volumes:
@@ -143,24 +133,21 @@ services:
 
   api:
     restart: always
+    deployment_strategy: high_availability
     container_name: api
     image: api-image
     command: npm build
-    build:
-      context: .
-      dockerfile: .docker/node.dev.dockerfile
-      args:
-        - name=api
-    env_file:
-      - ./.docker/node_machine/node.dev.env
     environment:
       - VIRTUAL_HOST=api.domusnetwork.io
       - VIRTUAL_NETWORK=domusnetwork
       - VIRTUAL_PORT=8000
       - LETSENCRYPT_HOST=api.domusnetwork.io
       - LETSENCRYPT_EMAIL=admin@domusnetwork.io
-    networks:
-      - hive
+      - NODE_ENV=production
+      - MONGO_LAB_PASSWORD=$PASSWORD
+    tags:
+      - production
+      - api
     ports:
       - "8000:8000"
     volumes:
@@ -171,10 +158,3 @@ services:
       - nginx
       - nginx-gen
       - nginx-letsencrypt
-
-
-
-networks:
-  hive:
-    external:
-      name: domusnetwork

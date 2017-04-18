@@ -4,7 +4,7 @@ services:
 
   nginx:
     restart: always
-    container_name: nginx
+    container_name: dev-nginx
     image: nginx
     ports:
       - "80:80"
@@ -22,7 +22,7 @@ services:
 
   nginx-gen:
     restart: always
-    container_name: nginx-gen
+    container_name: dev-nginx-gen
     image: jwilder/docker-gen
     volumes_from:
       - nginx
@@ -36,7 +36,7 @@ services:
 
   nginx-letsencrypt:
     restart: always
-    container_name: letsencrypt
+    container_name: dev-letsencrypt
     image: jrcs/letsencrypt-nginx-proxy-companion
     volumes:
       - "./.docker/nginx_machine/certs:/etc/nginx/certs:rw"
@@ -45,17 +45,48 @@ services:
     volumes_from:
       - nginx
     environment:
-      - NGINX_DOCKER_GEN_CONTAINER=nginx-gen
+      - NGINX_DOCKER_GEN_CONTAINER=dev-nginx-gen
     depends_on:
       - nginx
       - nginx-gen
 
 
+  dev:
+    restart: always
+    container_name: dev-ubuntu
+    image: dev-ubuntu-image
+    stdin_open: true
+    tty: true
+    build:
+      context: .
+      dockerfile: .docker/ubuntu.dev.dockerfile
+    networks:
+      - hive
+    ports:
+      - "9000:9000"
+      - "49154:22"
+    volumes:
+      - ./services/web:/root/devproject/web
+      - /root/devproject/web/node_modules
+      - ./services/app:/root/devproject/app
+      - /root/devproject/app/node_modules
+      - ./services/cms:/root/devproject/cms
+      - /root/devproject/cms/node_modules
+      - ./services/api:/root/devproject/api
+      - /root/devproject/api/node_modules
+    working_dir: /root/devproject
+    depends_on:
+      - site
+      - web
+      - app
+      - cms
+
+
   web:
     restart: always
-    container_name: web
-    image: web-image
-    command: npm build
+    container_name: dev-web
+    image: dev-web-image
+    command: npm start
     build:
       context: .
       dockerfile: .docker/node.dev.dockerfile
@@ -66,13 +97,13 @@ services:
     environment:
       - VIRTUAL_HOST=web.domusnetwork.io
       - VIRTUAL_NETWORK=domusnetwork
-      - VIRTUAL_PORT=80
+      - VIRTUAL_PORT=8080
       - LETSENCRYPT_HOST=web.domusnetwork.io
       - LETSENCRYPT_EMAIL=admin@domusnetwork.io
     networks:
       - hive
     ports:
-      - "80:8080"
+      - "8080:8080"
     volumes:
       - ./services/web:/root/service
       - /root/service/node_modules
@@ -83,9 +114,9 @@ services:
 
   app:
     restart: always
-    container_name: app
-    image: app-image
-    command: npm build
+    container_name: dev-app
+    image: dev-app-image
+    command: npm start
     build:
       context: .
       dockerfile: .docker/node.dev.dockerfile
@@ -113,9 +144,9 @@ services:
 
   cms:
     restart: always
-    container_name: cms
-    image: cms-image
-    command: npm build
+    container_name: dev-cms
+    image: dev-cms-image
+    command: npm start
     build:
       context: .
       dockerfile: .docker/node.dev.dockerfile
@@ -143,9 +174,9 @@ services:
 
   api:
     restart: always
-    container_name: api
-    image: api-image
-    command: npm build
+    container_name: dev-api
+    image: dev-api-image
+    command: npm start
     build:
       context: .
       dockerfile: .docker/node.dev.dockerfile
@@ -171,6 +202,30 @@ services:
       - nginx
       - nginx-gen
       - nginx-letsencrypt
+      - mongo
+
+
+  mongo:
+    restart: always
+    container_name: dev-mongo
+    image: dev-mongo-image
+    build:
+      context: .
+      dockerfile: ./.docker/mongo.dev.dockerfile
+    env_file:
+      - ./.docker/mongo_machine/mongo.dev.env
+    volumes:
+      - database_data:/var/lib/mongo
+    networks:
+      - hive
+    ports:
+      - "27017"
+
+
+
+volumes:
+    database_data:
+        driver: local
 
 
 
